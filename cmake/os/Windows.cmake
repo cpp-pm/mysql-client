@@ -108,20 +108,9 @@ IF(MSVC)
   #     Allowing inline reduces test time using the debug server by
   #     30% or so. If you do want to keep inlining off, set the
   #     cmake flag WIN_DEBUG_NO_INLINE.
-
-  OPTION(EMBED_DEBUG_INFO "Use /Z7 compile option to embed debug info into object files" OFF)
-  MARK_AS_ADVANCED(EMBED_DEBUG_INFO)
-
-  FOREACH(flag
-    CMAKE_C_FLAGS_DEBUG      CMAKE_C_FLAGS_DEBUG_INIT
-    CMAKE_CXX_FLAGS_DEBUG    CMAKE_CXX_FLAGS_DEBUG_INIT)
-    IF (EMBED_DEBUG_INFO)
-      STRING(REPLACE "/Zi"  "/Z7" "${flag}" "${${flag}}")
-    ENDIF()
-    IF (NOT WIN_DEBUG_NO_INLINE)
-      STRING(REPLACE "/Ob0"  "/Ob1" "${flag}" "${${flag}}")
-    ENDIF()
-  ENDFOREACH(flag)
+  FOREACH(lang C CXX)
+    SET(CMAKE_${lang}_FLAGS_RELEASE "${CMAKE_${lang}_FLAGS_RELEASE} /Z7")
+  ENDFOREACH()
 
   # Fix CMake's predefined huge stack size
   FOREACH(type EXE SHARED MODULE)
