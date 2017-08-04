@@ -342,7 +342,7 @@ configure_package_config_file("${CMAKE_CURRENT_LIST_DIR}/../cmake/config.cmake.i
     INSTALL_DESTINATION "${config_install_dir}")
 
 install(
-    TARGETS mysqlclient
+    TARGETS libmysql
     EXPORT "${targets_export_name}"
     LIBRARY DESTINATION "lib"
     ARCHIVE DESTINATION "lib"
