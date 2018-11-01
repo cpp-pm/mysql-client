@@ -224,6 +224,10 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
   )
 endif()
 
+IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  target_compile_options(clientlib PRIVATE "-Wno-implicit-fallthrough")
+ENDIF()
+
 SET(LIBS clientlib dbug strings vio mysys mysys_ssl ${ZLIB_LIBRARY} ${SSL_LIBRARIES} ${LIBDL})
 
 #

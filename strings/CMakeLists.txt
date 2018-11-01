@@ -39,5 +39,9 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
   )
 endif()
 
+IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  target_compile_options(strings PRIVATE "-Wno-implicit-fallthrough")
+ENDIF()
+
 ADD_EXECUTABLE(conf_to_src EXCLUDE_FROM_ALL conf_to_src.c)
 TARGET_LINK_LIBRARIES(conf_to_src strings)
