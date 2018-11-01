@@ -33,5 +33,9 @@ ENDIF()
 ADD_DEFINITIONS(-DDISABLE_MYSQL_THREAD_H)
 ADD_CONVENIENCE_LIBRARY(strings ${STRINGS_SOURCES})
 
+IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  target_compile_options(strings PRIVATE "-Wno-implicit-fallthrough")
+ENDIF()
+
 ADD_EXECUTABLE(conf_to_src EXCLUDE_FROM_ALL conf_to_src.c)
 TARGET_LINK_LIBRARIES(conf_to_src strings)
