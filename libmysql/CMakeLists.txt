@@ -286,7 +286,7 @@ ENDIF()
 IF(NOT DISABLE_SHARED)
   # Merge several convenience libraries into one big mysqlclient
   # and link them together into shared library.
-  MERGE_LIBRARIES(libmysql SHARED ${LIBS}
+  MERGE_LIBRARIES(mysql_shared SHARED ${LIBS}
     EXPORTS ${CLIENT_API_FUNCTIONS} ${CLIENT_API_FUNCTIONS_UNDOCUMENTED}
     COMPONENT SharedLibraries)
   IF(UNIX)
@@ -298,25 +298,25 @@ IF(NOT DISABLE_SHARED)
         "${SHARED_LIB_MAJOR_VERSION}.${SHARED_LIB_MINOR_VERSION}.${SHARED_LIB_PATCH_VERSION}")
     ENDIF()
     # Name of shared library is mysqlclient on Unix
-    SET_TARGET_PROPERTIES(libmysql PROPERTIES 
+    SET_TARGET_PROPERTIES(mysql_shared PROPERTIES 
       OUTPUT_NAME mysqlclient 
       VERSION "${OS_SHARED_LIB_VERSION}" 
       SOVERSION "${SHARED_LIB_MAJOR_VERSION}")
     CONFIGURE_FILE(libmysql.ver.in ${CMAKE_CURRENT_BINARY_DIR}/libmysql.ver)
 
     IF(APPLE)
-      SET_TARGET_PROPERTIES(libmysql PROPERTIES
+      SET_TARGET_PROPERTIES(mysql_shared PROPERTIES
         INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/${INSTALL_LIBDIR}"
       )
     ENDIF()
 
-    GET_TARGET_PROPERTY(libmysql_link_flags libmysql LINK_FLAGS)
+    GET_TARGET_PROPERTY(libmysql_link_flags mysql_shared LINK_FLAGS)
     IF(NOT libmysql_link_flag)
       SET(libmysql_link_flags)
     ENDIF()
     SET(libmysql_link_flags
       "${CMAKE_SHARED_LIBRARY_C_FLAGS} ${libmysql_link_flags}")
-    SET_TARGET_PROPERTIES(libmysql
+    SET_TARGET_PROPERTIES(mysql_shared
       PROPERTIES LINK_FLAGS "${libmysql_link_flags}")
 
     IF(LINK_FLAG_NO_UNDEFINED)
@@ -324,15 +324,42 @@ IF(NOT DISABLE_SHARED)
         "${libmysql_link_flags} ${LINK_FLAG_NO_UNDEFINED}")
       SET(libmysql_link_flags
         "${libmysql_link_flags} -Wl,--version-script=${CMAKE_CURRENT_BINARY_DIR}/libmysql.ver")
-      SET_TARGET_PROPERTIES(libmysql
+      SET_TARGET_PROPERTIES(mysql_shared
         PROPERTIES LINK_FLAGS "${libmysql_link_flags}")
     ENDIF() 
     # clean direct output needs to be set several targets have the same name
     #(mysqlclient in this case)
     SET_TARGET_PROPERTIES(mysqlclient PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-    SET_TARGET_PROPERTIES(libmysql PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+    SET_TARGET_PROPERTIES(mysql_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 
   ENDIF()
+ENDIF()
+
+# Merge several convenience libraries into one big mysqlclient
+# and link them together into static library.
+MERGE_LIBRARIES(mysql_static STATIC ${LIBS}
+  COMPONENT StaticLibraries)
+IF(UNIX)
+  # Name of shared library is mysqlclient on Unix
+  SET_TARGET_PROPERTIES(mysql_static PROPERTIES 
+    OUTPUT_NAME mysql_static
+  )
+
+  IF(APPLE)
+    SET_TARGET_PROPERTIES(mysql_static PROPERTIES
+      INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/${INSTALL_LIBDIR}"
+    )
+  ENDIF()
+
+  GET_TARGET_PROPERTY(libmysql_link_flags mysql_static LINK_FLAGS)
+  IF(NOT libmysql_link_flag)
+    SET(libmysql_link_flags)
+  ENDIF()
+  SET(libmysql_link_flags
+    "${CMAKE_SHARED_LIBRARY_C_FLAGS} ${libmysql_link_flags}")
+  SET_TARGET_PROPERTIES(mysql_static
+    PROPERTIES LINK_FLAGS "${libmysql_link_flags}")
+
 ENDIF()
 
 # Visual Studio users need debug  static library for debug projects
@@ -370,7 +397,7 @@ configure_package_config_file("${CMAKE_CURRENT_LIST_DIR}/../cmake/config.cmake.i
     INSTALL_DESTINATION "${config_install_dir}")
 
 install(
-    TARGETS libmysql
+    TARGETS mysql_shared mysql_static
     EXPORT "${targets_export_name}"
     LIBRARY DESTINATION "lib"
     ARCHIVE DESTINATION "lib"
@@ -419,7 +446,7 @@ IF(LIBRT)
 ENDIF()
 
 IF(DISABLE_SHARED)
-  TARGET_LINK_LIBRARIES(libmysql_api_test ${LIBS})
+  TARGET_LINK_LIBRARIES(libmysql_api_test mysql_static)
 ELSE()
-  TARGET_LINK_LIBRARIES(libmysql_api_test libmysql)
+  TARGET_LINK_LIBRARIES(libmysql_api_test mysql_shared)
 ENDIF()
