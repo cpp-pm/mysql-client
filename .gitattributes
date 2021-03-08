@@ -1,6 +1,9 @@
 * text=auto !eol svneol=native#text/plain
 *.gitattributes text svneol=native#text/plain
 
+# This file must be LF only
+sql/share/errmsg-utf8.txt eol=lf
+
 # Scriptish formats
 *.bat        text svneol=native#text/plain
 *.bsh        text svneol=native#text/x-beanshell
